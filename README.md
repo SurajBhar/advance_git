@@ -127,6 +127,12 @@ git log --oneline --decorate --graph --all
 * 0832375 HTML File
 * f86213d first commit
 
+git commit -am "feature-branch: modified title - 404.html"
+[feature-branch 82ff182] feature-branch: modified title - 404.html
+ 2 files changed, 21 insertions(+), 1 deletion(-)
+
+
+
 ```
 
 ### 2.1 Rebase implementation
