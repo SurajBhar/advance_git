@@ -1,0 +1,20 @@
+app:
+  name: MyApp
+  version: 1.0.0
+  debug: true
+
+server:
+  host: "127.0.0.1"
+  port: 8080
+
+database:
+  engine: postgres
+  host: localhost
+  port: 5432
+  username: user
+  password: pass
+  name: myapp_db
+
+logging:
+  level: INFO
+  file: logs/app.log
