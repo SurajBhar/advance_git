@@ -97,6 +97,17 @@ git commit --amend
 Just don’t stage any new files before running it—otherwise Git will also include those changes in the amended commit.
 
 ## 2. Git Rebase
+**Rebase** moves your commits to a new base commit. Instead of merging two branches (which creates a merge commit), rebase **replays** your branch’s commits *on top of* another branch, producing a **linear history**.
+
+```bash
+# Create a new branch named feature-branch
+git checkout -b feature-branch 
+
+# sample command for rebase
+git rebase <BASE>
+# base can be: an ID, a branch name, a tag, or a relative referance to HEAD
+git rebase main
+```
 
 ### 2.1 Rebase implementation
 
