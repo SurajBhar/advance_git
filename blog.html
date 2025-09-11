@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Tech Blog: Transformers, Agentic AI, RAG, MCP Servers</title>
+  <meta name="description" content="A short, readable blog post explaining Transformers, Agentic AI, Retrieval-Augmented Generation (RAG), and MCP Servers." />
+  <style>
+    :root {
+      --bg: #0b0f14;        /* deep slate */
+      --card: #111821;      /* card background */
+      --ink: #e6eef7;       /* main text */
+      --muted: #9db0c5;     /* secondary text */
+      --accent: #7cc4ff;    /* accent blue */
+      --accent-2: #b48bff;  /* accent purple */
+      --ring: rgba(124,196,255,.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--ink);
+      background: radial-gradient(1200px 800px at 80% -10%, rgba(124,196,255,.07), transparent 60%),
+                  radial-gradient(900px 600px at -10% 20%, rgba(180,139,255,.08), transparent 60%),
+                  var(--bg);
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px; }
+    header {
+      padding: 28px 20px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(124,196,255,.15);
+      box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    }
+    h1 { font-size: clamp(1.6rem, 2.5vw, 2.2rem); margin: 0 0 10px; }
+    .subtitle { color: var(--muted); margin: 0; }
+
+    nav.toc {
+      display: flex; gap: 12px; flex-wrap: wrap; margin: 18px 0 0;
+    }
+    nav.toc a {
+      text-decoration: none;
+      color: var(--ink);
+      background: var(--card);
+      border: 1px solid rgba(124,196,255,.18);
+      padding: 8px 12px; border-radius: 999px; font-size: .95rem;
+    }
+    nav.toc a:hover { box-shadow: 0 0 0 6px var(--ring) inset; }
+
+    main { margin-top: 22px; display: grid; gap: 18px; }
+    article {
+      background: var(--card);
+      border: 1px solid rgba(124,196,255,.15);
+      border-radius: 16px; padding: 22px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    }
+    article h2 { margin-top: 0; font-size: 1.35rem; }
+    p { margin: 0 0 12px; }
+    ul { margin: 0 0 12px 20px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+    code.inline { background: #09121a; border: 1px solid rgba(255,255,255,.06); padding: 2px 6px; border-radius: 6px; }
+
+    .tip {
+      border-left: 4px solid var(--accent);
+      padding: 10px 14px; border-radius: 8px; background: rgba(124,196,255,.07);
+      color: var(--ink);
+    }
+    .callout {
+      border-left: 4px solid var(--accent-2);
+      padding: 10px 14px; border-radius: 8px; background: rgba(180,139,255,.07);
+    }
+
+    footer { color: var(--muted); text-align: center; margin: 26px 0 10px; }
+    a { color: var(--accent); }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f7fbff;
+        --card: #ffffff;
+        --ink: #0f1720;
+        --muted: #4c6275;
+        --accent: #005fcc;
+        --accent-2: #6a32ff;
+        --ring: rgba(0,95,204,.12);
+      }
+      body { background: var(--bg); }
+      header { border-color: rgba(0,95,204,.15); }
+      article { border-color: rgba(0,95,204,.12); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Mini Tech Blog: Transformers, Agentic AI, RAG, and MCP Servers</h1>
+      <p class="subtitle">A crisp, friendly primer—ideal for quick reading and sharing.</p>
+      <nav class="toc" aria-label="Table of contents">
+        <a href="#transformers">Transformers</a>
+        <a href="#agentic-ai">Agentic AI</a>
+        <a href="#rag">Retrieval-Augmented Generation (RAG)</a>
+        <a href="#mcp">MCP Servers</a>
+      </nav>
+    </header>
+
+    <main>
+      <article id="transformers">
+        <h2>Transformers</h2>
+        <p>
+          <strong>Transformers</strong> are a neural network architecture that replaced recurrence with <em>self‑attention</em>.
+          Instead of reading tokens strictly in order, the model looks at the entire sequence and decides which parts to focus on.
+          This parallelism makes training fast and captures long‑range dependencies well.
+        </p>
+        <ul>
+          <li><span class="tip"><strong>Key idea:</strong> Self‑attention builds contextual representations by weighting relationships between tokens.</span></li>
+          <li>Common components: multi‑head attention, positional encodings, feed‑forward layers, residual connections, and layer norm.</li>
+          <li>Used for: language modeling, translation, vision (ViT), audio, and multimodal tasks.</li>
+        </ul>
+        <p class="callout"><strong>Why it matters:</strong> Transformers power today’s state‑of‑the‑art LLMs and foundation models.</p>
+      </article>
+
+      <article id="agentic-ai">
+        <h2>Agentic AI</h2>
+        <p>
+          <strong>Agentic AI</strong> extends an LLM into an <em>autonomous problem‑solver</em> that can plan, take actions, and reflect.
+          Agents plug into tools and data sources, break goals into steps, execute those steps (often via APIs), and iterate based on feedback.
+        </p>
+        <ul>
+          <li>Typical loop: <code class="inline">plan → act → observe → reflect → refine</code>.</li>
+          <li>Enablers: tool use (APIs/DBs), memory, multi‑step reasoning, and guardrails/policies.</li>
+          <li>Use cases: customer support bots, data analysis copilots, workflow automation, research assistants.</li>
+        </ul>
+        <p class="callout"><strong>Why it matters:</strong> Moves beyond one‑shot answers to <em>goal‑directed</em> automation and orchestration.</p>
+      </article>
+
+      <article id="rag">
+        <h2>Retrieval‑Augmented Generation (RAG)</h2>
+        <p>
+          <strong>RAG</strong> combines a generator (LLM) with a retriever (search over your knowledge base).
+          At query time, the system fetches relevant documents (via keyword, dense, or hybrid search), then prompts the model with those snippets to produce grounded answers.
+        </p>
+        <ul>
+          <li>Pipeline: <code class="inline">ingest → chunk → embed/index → retrieve → rerank → generate</code>.</li>
+          <li>Pros: fresher knowledge, citations, domain control, reduced hallucinations.</li>
+          <li>Gotchas: chunking strategy, embeddings drift, evaluation of retrieval quality, latency budget.</li>
+        </ul>
+        <p class="tip"><strong>Tip:</strong> Add evaluation—measure answer faithfulness and retrieval relevance to keep quality high.</p>
+      </article>
+
+      <article id="mcp">
+        <h2>Model Context Protocol (MCP) Servers</h2>
+        <p>
+          <strong>MCP Servers</strong> expose tools, data, and capabilities to AI models via a consistent protocol.
+          Instead of hard‑coding every integration, the model connects to MCP endpoints that declare what they can do (e.g., run a query, read a file, call a service).
+        </p>
+        <ul>
+          <li>Benefits: modular tool integration, capability discovery, uniform security/permissions.</li>
+          <li>In agentic systems, an MCP server acts like a <em>capability hub</em> the agent can invoke during its tool‑use loop.</li>
+          <li>Examples: DB access, filesystem operations, web search, analytics pipelines, or enterprise APIs.</li>
+        </ul>
+        <pre><code>// Pseudo-call from an agent to an MCP tool
+invoke("mcp://analytics/run_report", {
+  report: "weekly-sales",
+  filters: { region: "EU", timeframe: "last_7_days" }
+});
+</code></pre>
+        <p class="callout"><strong>Why it matters:</strong> MCP standardizes how models discover and use tools—key for scalable, secure agent ecosystems.</p>
+      </article>
+    </main>
+
+    <footer>
+      <p>© <span id="y"></span> Suraj Bhardwaj · Mini Tech Blog: Built with plain HTML & CSS</p>
+    </footer>
+  </div>
+
+  <script>
+    // Tiny JS: current year + smooth scrolling for hash links
+    document.getElementById('y').textContent = new Date().getFullYear();
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const id = a.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
+  </script>
+</body>
+</html>
