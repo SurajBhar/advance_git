@@ -131,7 +131,19 @@ git commit -am "feature-branch: modified title - 404.html"
 [feature-branch 82ff182] feature-branch: modified title - 404.html
  2 files changed, 21 insertions(+), 1 deletion(-)
 
+git commit -am "feature-branch: modified Error Message - 404.html"
+[feature-branch e7f8a2e] feature-branch: modified Error Message - 404.html
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
+
+ git log --oneline --decorate --graph --all
+* e7f8a2e (HEAD -> feature-branch) feature-branch: modified Error Message - 404.html
+* 82ff182 feature-branch: modified title - 404.html
+* 89293e4 (origin/main, main) Rebasing
+* 86bcbc6 Updated Readme with future section
+* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
+* 0832375 HTML File
+* f86213d first commit
 
 ```
 
