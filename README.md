@@ -109,6 +109,26 @@ git rebase <BASE>
 git rebase main
 ```
 
+```bash
+git log --oneline --decorate --graph --all
+* 89293e4 (HEAD -> main, origin/main) Rebasing
+* 86bcbc6 Updated Readme with future section
+* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
+* 0832375 HTML File
+* f86213d first commit
+
+# Create a new branch named feature-branch
+git checkout -b feature-branch 
+
+git log --oneline --decorate --graph --all
+* 89293e4 (HEAD -> feature-branch, origin/main, main) Rebasing
+* 86bcbc6 Updated Readme with future section
+* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
+* 0832375 HTML File
+* f86213d first commit
+
+```
+
 ### 2.1 Rebase implementation
 
 ### 2.2 Resolving Git Rebase Conflict
