@@ -716,377 +716,206 @@ git rebase --abort
 
 ---
 
-## 5. Git Reference Logs
+## 5. Git Reference Logs (Reflog)
+Git’s **reference logs (reflog)** act as a **safety net** for your repository. While `git log` shows the commits that are part of your branch’s history, `git reflog` records **all changes to the tips of branches and other references**—even if those commits don’t appear in the visible history anymore.
 
-Reflog is Git’s **safety net**—it records all branch tip updates, even if commits were reset or “lost.”
+Think of the reflog as a **personal diary of your Git actions**, maintained locally. Every time you:
 
-* Every checkout, reset, rebase, and commit is tracked locally.
-* You can recover commits that no longer appear in `git log`.
+* Checkout a branch
+* Commit changes
+* Reset or rebase
+* Merge or pull
+
+…the `HEAD` reference is updated, and the reflog records it.
+
+---
+
+## Step 1: Viewing the Reflog
+
+Run:
 
 ```bash
 git reflog
 ```
 
-reflog is an acronym for reference logs. The current head can get updated for multiple events such as: by switching branches, pulling in new changes, rewriting history or simply by adding new commits.
-
-reference is like a chronological history about everything you have done in your local repository.
-
-```bash
-git reflog
-ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
-ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
-0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
-e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
-e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
-453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
-fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
-9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
-fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
-fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
-24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
-352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
-9cbea38 HEAD@{12}: rebase (start): checkout main
-:...skipping...
-ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
-ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
-0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
-e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
-e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
-453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
-fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
-9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
-fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
-fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
-24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
-352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
-9cbea38 HEAD@{12}: rebase (start): checkout main
-7a9f943 HEAD@{13}: checkout: moving from main to feature-branch
-:...skipping...
-ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
-ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
-0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
-e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
-e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
-453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
-fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
-9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
-fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
-fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
-24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
-352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
-9cbea38 HEAD@{12}: rebase (start): checkout main
-7a9f943 HEAD@{13}: checkout: moving from main to feature-branch
-9cbea38 HEAD@{14}: commit: main: modified Error Message again- 404.html
-84900fe HEAD@{15}: commit: main: modified title again- 404.html
-89293e4 HEAD@{16}: checkout: moving from feature-branch to main
-7a9f943 HEAD@{17}: checkout: moving from main to feature-branch
-:...skipping...
-ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
-ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
-0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
-e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
-e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
-453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
-fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
-9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
-fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
-fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
-24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
-352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
-9cbea38 HEAD@{12}: rebase (start): checkout main
-7a9f943 HEAD@{13}: checkout: moving from main to feature-branch
-9cbea38 HEAD@{14}: commit: main: modified Error Message again- 404.html
-84900fe HEAD@{15}: commit: main: modified title again- 404.html
-89293e4 HEAD@{16}: checkout: moving from feature-branch to main
-7a9f943 HEAD@{17}: checkout: moving from main to feature-branch
-89293e4 HEAD@{18}: checkout: moving from feature-branch to main
-7a9f943 HEAD@{19}: commit: feature-branch:modified README.md File - README.md
-e7f8a2e HEAD@{20}: commit: feature-branch: modified Error Message - 404.html
-:...skipping...
-ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
-ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
-0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
-e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
-e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
-453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
-fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
-9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
-fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
-fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
-24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
-352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
-9cbea38 HEAD@{12}: rebase (start): checkout main
-7a9f943 HEAD@{13}: checkout: moving from main to feature-branch
-9cbea38 HEAD@{14}: commit: main: modified Error Message again- 404.html
-84900fe HEAD@{15}: commit: main: modified title again- 404.html
-89293e4 HEAD@{16}: checkout: moving from feature-branch to main
-7a9f943 HEAD@{17}: checkout: moving from main to feature-branch
-89293e4 HEAD@{18}: checkout: moving from feature-branch to main
-7a9f943 HEAD@{19}: commit: feature-branch:modified README.md File - README.md
-e7f8a2e HEAD@{20}: commit: feature-branch: modified Error Message - 404.html
-82ff182 HEAD@{21}: commit: feature-branch: modified title - 404.html
-89293e4 HEAD@{22}: checkout: moving from main to feature-branch
-89293e4 HEAD@{23}: commit: Rebasing
-86bcbc6 HEAD@{24}: commit: Updated Readme with future section
-65cf379 HEAD@{25}: commit (amend): main:modified the title - blog.html and added 404.html; added config.yaml
-4bf9f69 HEAD@{26}: commit (amend): main:modified the title - blog.html
-:...skipping...
-ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
-ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
-0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
-e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
-e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
-453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
-fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
-9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
-fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
-fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
-24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
-352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
-9cbea38 HEAD@{12}: rebase (start): checkout main
-7a9f943 HEAD@{13}: checkout: moving from main to feature-branch
-9cbea38 HEAD@{14}: commit: main: modified Error Message again- 404.html
-84900fe HEAD@{15}: commit: main: modified title again- 404.html
-89293e4 HEAD@{16}: checkout: moving from feature-branch to main
-7a9f943 HEAD@{17}: checkout: moving from main to feature-branch
-89293e4 HEAD@{18}: checkout: moving from feature-branch to main
-7a9f943 HEAD@{19}: commit: feature-branch:modified README.md File - README.md
-e7f8a2e HEAD@{20}: commit: feature-branch: modified Error Message - 404.html
-82ff182 HEAD@{21}: commit: feature-branch: modified title - 404.html
-89293e4 HEAD@{22}: checkout: moving from main to feature-branch
-89293e4 HEAD@{23}: commit: Rebasing
-86bcbc6 HEAD@{24}: commit: Updated Readme with future section
-65cf379 HEAD@{25}: commit (amend): main:modified the title - blog.html and added 404.html; added config.yaml
-4bf9f69 HEAD@{26}: commit (amend): main:modified the title - blog.html
-ab40261 HEAD@{27}: commit: main:modified the title - blog.html
-0832375 HEAD@{28}: commit: HTML File
-f86213d HEAD@{29}: Branch: renamed refs/heads/main to refs/heads/main
-f86213d HEAD@{31}: commit (initial): first commit
+Example output:
 
 ```
+ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
+ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
+0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e79...
+e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
+e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
+453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
+...
+```
+
+Here’s what’s happening:
+
+* `HEAD@{0}` – The most recent action. In this case, completing a pull with rebase.
+* `HEAD@{3}` – A commit made earlier (`main: modified readme`).
+* `HEAD@{5}` – A commit you thought might be “lost” if you reset later.
+
+Unlike `git log`, these entries **remain visible even after resets or rebases**.
+
+---
+
+## Step 2: Why Reflog Matters
+
+Let’s say you reset a branch or made changes you regret.
+
+* `git log` may no longer show those commits (they are detached from the branch).
+* But reflog keeps them recorded, allowing you to **recover lost commits**.
+
+That’s why reflog is Git’s **time machine**.
+
+---
+
+## Step 3: Inspecting Historical States
+
+You can inspect any past state of the repository with:
+
+```bash
+git show HEAD@{n}
+```
+
+Example:
 
 ```bash
 git show HEAD@{29}
-commit f86213deab1cb5c6a10fbbd740b849c8ee9b1e40
-Author: Suraj Bhardwaj <suraj.unisiegen@gmail.com>
+```
+
+Output shows the very **first commit**:
+
+```diff
+commit f86213de...
+Author: Suraj Bhardwaj
 Date:   Thu Sep 11 17:45:43 2025 +0200
 
     first commit
-
-diff --git a/README.md b/README.md
-new file mode 100644
-index 0000000..fb7c9f5
---- /dev/null
-+++ b/README.md
-@@ -0,0 +1,2 @@
-+# Advance Git Commands and GitHub Features
-+
-
 ```
 
 ---
-The reflog data is kept in the .git/logs/ directory.
-Reflog is purely.
 
-
-We can also see the history by specifying the time in various supported formats:
-1.minute.ago
-1.hour.ago
-1.day.ago
-yesterday
-1.week.ago
-1.month.ago
-1.year.ago
-1.day.2.hours.ago
-2025-09-11.21:00:00
-
-```bash
-git log -g main
-```
-
+You can also query reflog by **time references**:
 
 ```bash
 git show main@{1.hour.ago}
-commit e5c4de075366c43ec9d5f386f7f47d484121c4c1
-Author: Suraj Bhardwaj <115887529+SurajBhar@users.noreply.github.com>
+git show main@{yesterday}
+git show main@{1.week.ago}
+```
+
+Example:
+
+```bash
+git show main@{1.hour.ago}
+```
+
+Output:
+
+```
+commit e5c4de0...
+Author: Suraj Bhardwaj
 Date:   Fri Sep 12 10:29:35 2025 +0200
 
     Included Hyperparameter tuning
-
-diff --git a/svm_classification.py b/svm_classification.py
-index 917c25a..d2fa925 100644
---- a/svm_classification.py
-+++ b/svm_classification.py
-@@ -2,17 +2,21 @@
- Support Vector Machine (SVM) Classification Example
- ---------------------------------------------------
- This script demonstrates the full Machine Learning lifecycle using
--an SVM classifier on a sample dataset (Iris dataset).
-+an SVM classifier on the Iris dataset, including hyperparameter tuning.
- """
- 
- import joblib
--import numpy as np
- import matplotlib.pyplot as plt
- from sklearn import datasets
--from sklearn.model_selection import train_test_split
-+from sklearn.model_selection import train_test_split, GridSearchCV
- from sklearn.preprocessing import StandardScaler
-:
-
-```
-
-```bash
-git show main@{5.days.ago}
-warning: log for 'main' only goes back to Thu, 11 Sep 2025 17:45:43 +0200
-commit f86213deab1cb5c6a10fbbd740b849c8ee9b1e40
-Author: Suraj Bhardwaj <suraj.unisiegen@gmail.com>
-Date:   Thu Sep 11 17:45:43 2025 +0200
-
-    first commit
-
-diff --git a/README.md b/README.md
-new file mode 100644
-index 0000000..fb7c9f5
---- /dev/null
-+++ b/README.md
-@@ -0,0 +1,2 @@
-+# Advance Git Commands and GitHub Features
-+
-```
-
-```bash
-git diff @{1.hour.ago}
 ```
 
 ---
 
+## Step 4: Using Reflog to Recover from Mistakes
+
+### Scenario: Hard Reset
+
+Suppose you ran:
+
 ```bash
-git log --oneline --decorate --graph --all
-* bee45fc (HEAD -> main) main: deleted server info - config.yaml
-* ebf7c5c (origin/main) main: modified readme - README.md
-* 0535e79 Update 2 config.yaml
-* d9b0764 Updated 1 config.yaml
-* e5c4de0 Included Hyperparameter tuning
-* 86f6a84 Created svm_classification.py
-* 453b2c9 Rebasing Done with Updated Readme
-* fca2f48 feature-branch:modified README.md File - README.md
-* 24d3a81 feature-branch: rebase in progress - 404.html
-* 352a722 feature-branch: Rebasing the feature branch - 404.html
-* 9cbea38 main: modified Error Message again- 404.html
-* 84900fe main: modified title again- 404.html
-* 89293e4 Rebasing
-* 86bcbc6 Updated Readme with future section
-* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
-* 0832375 HTML File
-* f86213d first commit
-
-git reset --hard ebf7c5c
-HEAD is now at ebf7c5c main: modified readme - README.md
-
-git log --oneline --decorate --graph --all
-* ebf7c5c (HEAD -> main, origin/main) main: modified readme - README.md
-* 0535e79 Update 2 config.yaml
-* d9b0764 Updated 1 config.yaml
-* e5c4de0 Included Hyperparameter tuning
-* 86f6a84 Created svm_classification.py
-* 453b2c9 Rebasing Done with Updated Readme
-* fca2f48 feature-branch:modified README.md File - README.md
-* 24d3a81 feature-branch: rebase in progress - 404.html
-* 352a722 feature-branch: Rebasing the feature branch - 404.html
-* 9cbea38 main: modified Error Message again- 404.html
-* 84900fe main: modified title again- 404.html
-* 89293e4 Rebasing
-* 86bcbc6 Updated Readme with future section
-* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
-* 0832375 HTML File
-* f86213d first commit
-
 git reset --hard bee45fc
-HEAD is now at bee45fc main: deleted server info - config.yaml
+```
 
+This moved your branch pointer back to an older commit. At first glance, it looks like you lost your newer commits. But reflog recorded them:
+
+```bash
 git reflog
 bee45fc (HEAD -> main) HEAD@{0}: reset: moving to bee45fc
 ebf7c5c (origin/main) HEAD@{1}: reset: moving to ebf7c5c
 bee45fc (HEAD -> main) HEAD@{2}: commit: main: deleted server info - config.yaml
-ebf7c5c (origin/main) HEAD@{3}: pull --rebase origin main (finish): returning to refs/heads/main
-ebf7c5c (origin/main) HEAD@{4}: pull --rebase origin main (pick): main: modified readme - README.md
-0535e79 HEAD@{5}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
-e7d0f19 HEAD@{6}: commit: main: modified readme - README.md
-e5c4de0 HEAD@{7}: merge origin/main: Fast-forward
+...
 ```
 
-All our moves have been recorded by reflog.
+You can still recover the commits via their reflog entries.
 
-Let's assume we have stoped working on the feature which is related to these commits and after dicussion with fellow developers I realised that i shouldn't have scraped previous commits and i have to restore the repository as it was before the reset was done then git provides you opportunity to do that.
+---
+
+### Scenario: Restoring Lost Commits
+
+You decide those commits weren’t mistakes after all. To bring them back:
 
 ```bash
-# Enter in a detached head state and do commits there
+# Checkout an old reflog entry in detached HEAD state
 git checkout HEAD@{2}
 
-# To retain the commits create a new branch and commit there
+# Create a new branch to save those commits
 git checkout -b restore-branch
 
-# Then do some commits there according to your project
-# checkout to main branch
+# Merge back into main
 git checkout main
-
-# Merege the branch
 git merge restore-branch
 
-# Delete the restore branch
+# Delete the temporary branch
 git branch -d restore-branch
-
-# See git reflog
-git reflog
 ```
+
+Now your “lost” commits are restored into your main history.
+
+---
+
+## Step 5: Where Reflog Data Lives
+
+* Reflog entries are stored inside `.git/logs/`
+* They are **local only** – other collaborators cannot see your reflog.
+* Git garbage collection (`git gc`) may eventually clean up very old reflog entries.
+
+---
+
+## Step 6: Cheat Sheet
+
+Here’s a quick summary of useful reflog commands:
 
 ```bash
-git checkout HEAD@{2}
-M       README.md
-Note: switching to 'HEAD@{2}'.
+# Show reflog for HEAD (all actions)
+git reflog
 
-You are in 'detached HEAD' state. You can look around, make experimental
-changes and commit them, and you can discard any commits you make in this
-state without impacting any branches by switching back to a branch.
+# Show reflog for a specific branch
+git reflog show main
 
-If you want to create a new branch to retain commits you create, you may
-do so (now or later) by using -c with the switch command. Example:
+# Show commit at a specific reflog entry
+git show HEAD@{5}
 
-  git switch -c <new-branch-name>
+# Checkout an old state
+git checkout HEAD@{10}
 
-Or undo this operation with:
+# Recover work by branching from a reflog entry
+git checkout -b restore-branch HEAD@{8}
 
-  git switch -
+# Show history by time references
+git show main@{1.hour.ago}
+git show main@{yesterday}
 
-Turn off this advice by setting config variable advice.detachedHead to false
+# Diff between old state and current
+git diff @{1.hour.ago}
 
-HEAD is now at bee45fc main: deleted server info - config.yaml
-
-git commit -am "restore-branch: modified config - config.yaml"
-[restore-branch a710ba6] restore-branch: modified config - config.yaml
- 2 files changed, 82 insertions(+), 2 deletions(-)
-
-git log --oneline --decorate --graph --all
-* a710ba6 (HEAD -> restore-branch) restore-branch: modified config - config.yaml
-* bee45fc (main) main: deleted server info - config.yaml
-* ebf7c5c (origin/main) main: modified readme - README.md
-* 0535e79 Update 2 config.yaml
-* d9b0764 Updated 1 config.yaml
-* e5c4de0 Included Hyperparameter tuning
-* 86f6a84 Created svm_classification.py
-* 453b2c9 Rebasing Done with Updated Readme
-* fca2f48 feature-branch:modified README.md File - README.md
-* 24d3a81 feature-branch: rebase in progress - 404.html
-* 352a722 feature-branch: Rebasing the feature branch - 404.html
-* 9cbea38 main: modified Error Message again- 404.html
-* 84900fe main: modified title again- 404.html
-* 89293e4 Rebasing
-* 86bcbc6 Updated Readme with future section
-* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
-* 0832375 HTML File
-* f86213d first commit
-
-
-
+# Show reflog in log format
+git log -g
 ```
+
+---
+
+## Key Takeaways
+
+* **Reflog is your safety net**: it tracks all branch tip movements.
+* You can **restore commits** even after resets, rebases, and amends.
+* It is **local-only** – don’t expect teammates to see your reflog.
+* Always check reflog when you think “I lost my commits!”
+
+---
