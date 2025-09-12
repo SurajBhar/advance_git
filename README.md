@@ -1040,3 +1040,53 @@ git branch -d restore-branch
 # See git reflog
 git reflog
 ```
+
+```bash
+git checkout HEAD@{2}
+M       README.md
+Note: switching to 'HEAD@{2}'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at bee45fc main: deleted server info - config.yaml
+
+git commit -am "restore-branch: modified config - config.yaml"
+[restore-branch a710ba6] restore-branch: modified config - config.yaml
+ 2 files changed, 82 insertions(+), 2 deletions(-)
+
+git log --oneline --decorate --graph --all
+* a710ba6 (HEAD -> restore-branch) restore-branch: modified config - config.yaml
+* bee45fc (main) main: deleted server info - config.yaml
+* ebf7c5c (origin/main) main: modified readme - README.md
+* 0535e79 Update 2 config.yaml
+* d9b0764 Updated 1 config.yaml
+* e5c4de0 Included Hyperparameter tuning
+* 86f6a84 Created svm_classification.py
+* 453b2c9 Rebasing Done with Updated Readme
+* fca2f48 feature-branch:modified README.md File - README.md
+* 24d3a81 feature-branch: rebase in progress - 404.html
+* 352a722 feature-branch: Rebasing the feature branch - 404.html
+* 9cbea38 main: modified Error Message again- 404.html
+* 84900fe main: modified title again- 404.html
+* 89293e4 Rebasing
+* 86bcbc6 Updated Readme with future section
+* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
+* 0832375 HTML File
+* f86213d first commit
+
+
+
+```
