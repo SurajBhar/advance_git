@@ -2,17 +2,21 @@
 Support Vector Machine (SVM) Classification Example
 ---------------------------------------------------
 This script demonstrates the full Machine Learning lifecycle using
-an SVM classifier on a sample dataset (Iris dataset).
+an SVM classifier on the Iris dataset, including hyperparameter tuning.
 """
 
 import joblib
-import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    ConfusionMatrixDisplay,
+)
 
 
 def load_data():
@@ -36,8 +40,29 @@ def preprocess_data(X, y, test_size=0.2, random_state=42):
     return X_train_scaled, X_test_scaled, y_train, y_test, scaler
 
 
+def tune_hyperparameters(X_train, y_train):
+    """Perform hyperparameter tuning for SVM using GridSearchCV."""
+    param_grid = {
+        "C": [0.1, 1, 10, 100],
+        "gamma": ["scale", "auto", 0.01, 0.001],
+        "kernel": ["linear", "rbf", "poly"],
+    }
+    grid = GridSearchCV(
+        SVC(probability=True, random_state=42),
+        param_grid,
+        refit=True,
+        cv=5,
+        n_jobs=-1,
+        verbose=1,
+    )
+    grid.fit(X_train, y_train)
+    print("\nBest Hyperparameters found:")
+    print(grid.best_params_)
+    return grid.best_estimator_
+
+
 def train_model(X_train, y_train, kernel="rbf", C=1.0, gamma="scale"):
-    """Train an SVM classifier."""
+    """Train an SVM classifier with given hyperparameters."""
     svm_clf = SVC(kernel=kernel, C=C, gamma=gamma, probability=True, random_state=42)
     svm_clf.fit(X_train, y_train)
     print("Model training complete.")
@@ -79,14 +104,15 @@ def main():
     # Step 2: Preprocess data
     X_train, X_test, y_train, y_test, scaler = preprocess_data(X, y)
 
-    # Step 3: Train model
-    model = train_model(X_train, y_train)
+    # Step 3: Hyperparameter tuning
+    print("\nStarting hyperparameter tuning...")
+    best_model = tune_hyperparameters(X_train, y_train)
 
-    # Step 4: Evaluate model
-    evaluate_model(model, X_test, y_test, target_names)
+    # Step 4: Evaluate best model
+    evaluate_model(best_model, X_test, y_test, target_names)
 
-    # Step 5: Save model
-    save_model(model, scaler)
+    # Step 5: Save best model
+    save_model(best_model, scaler)
 
     # Step 6: Load model and re-test
     loaded_model, loaded_scaler = load_model()
