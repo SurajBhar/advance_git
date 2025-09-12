@@ -960,3 +960,83 @@ git diff @{1.hour.ago}
 ```
 
 ---
+
+```bash
+git log --oneline --decorate --graph --all
+* bee45fc (HEAD -> main) main: deleted server info - config.yaml
+* ebf7c5c (origin/main) main: modified readme - README.md
+* 0535e79 Update 2 config.yaml
+* d9b0764 Updated 1 config.yaml
+* e5c4de0 Included Hyperparameter tuning
+* 86f6a84 Created svm_classification.py
+* 453b2c9 Rebasing Done with Updated Readme
+* fca2f48 feature-branch:modified README.md File - README.md
+* 24d3a81 feature-branch: rebase in progress - 404.html
+* 352a722 feature-branch: Rebasing the feature branch - 404.html
+* 9cbea38 main: modified Error Message again- 404.html
+* 84900fe main: modified title again- 404.html
+* 89293e4 Rebasing
+* 86bcbc6 Updated Readme with future section
+* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
+* 0832375 HTML File
+* f86213d first commit
+
+git reset --hard ebf7c5c
+HEAD is now at ebf7c5c main: modified readme - README.md
+
+git log --oneline --decorate --graph --all
+* ebf7c5c (HEAD -> main, origin/main) main: modified readme - README.md
+* 0535e79 Update 2 config.yaml
+* d9b0764 Updated 1 config.yaml
+* e5c4de0 Included Hyperparameter tuning
+* 86f6a84 Created svm_classification.py
+* 453b2c9 Rebasing Done with Updated Readme
+* fca2f48 feature-branch:modified README.md File - README.md
+* 24d3a81 feature-branch: rebase in progress - 404.html
+* 352a722 feature-branch: Rebasing the feature branch - 404.html
+* 9cbea38 main: modified Error Message again- 404.html
+* 84900fe main: modified title again- 404.html
+* 89293e4 Rebasing
+* 86bcbc6 Updated Readme with future section
+* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
+* 0832375 HTML File
+* f86213d first commit
+
+git reset --hard bee45fc
+HEAD is now at bee45fc main: deleted server info - config.yaml
+
+git reflog
+bee45fc (HEAD -> main) HEAD@{0}: reset: moving to bee45fc
+ebf7c5c (origin/main) HEAD@{1}: reset: moving to ebf7c5c
+bee45fc (HEAD -> main) HEAD@{2}: commit: main: deleted server info - config.yaml
+ebf7c5c (origin/main) HEAD@{3}: pull --rebase origin main (finish): returning to refs/heads/main
+ebf7c5c (origin/main) HEAD@{4}: pull --rebase origin main (pick): main: modified readme - README.md
+0535e79 HEAD@{5}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
+e7d0f19 HEAD@{6}: commit: main: modified readme - README.md
+e5c4de0 HEAD@{7}: merge origin/main: Fast-forward
+```
+
+All our moves have been recorded by reflog.
+
+Let's assume we have stoped working on the feature which is related to these commits and after dicussion with fellow developers I realised that i shouldn't have scraped previous commits and i have to restore the repository as it was before the reset was done then git provides you opportunity to do that.
+
+```bash
+# Enter in a detached head state and do commits there
+git checkout HEAD@{2}
+
+# To retain the commits create a new branch and commit there
+git checkout -b restore-branch
+
+# Then do some commits there according to your project
+# checkout to main branch
+git checkout main
+
+# Merege the branch
+git merge restore-branch
+
+# Delete the restore branch
+git branch -d restore-branch
+
+# See git reflog
+git reflog
+```
