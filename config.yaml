@@ -3,9 +3,6 @@ app:
   version: 1.0.0
   debug: true
 
-server:
-  host: "127.0.0.1"
-  port: 8080
 
 database:
   engine: postgres

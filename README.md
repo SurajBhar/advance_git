@@ -563,24 +563,60 @@ Your local `main` is synced with `origin/main`.
 ---
 
 ## 4. Git Pull and Pull with Rebase
-git fetch is the command that says "bring my local copy of the remote repository up to date".
-On the contrary, git pull will bring the local copy of the remote repository up to date and merge it to reflect changes in your local repository or workspace. So, git pull is a combination of git fetch and git merge performed together.
+When collaborating with others, keeping your local repository in sync with the remote repository is crucial. After all, you’re not the only one pushing changes!
 
-so git pull does a git fetch to pull down data from the specified remote and then calls git merge to join the changes received with your current branches work.
-However, that may not be the best case. You may also rebase the changes and that will result in a lot cleaner. This can be done by adding the --rebase flag with the git pull command as  follows:
+* **`git fetch`** brings your remote-tracking branches (like `origin/main`) up to date but does not touch your local working branch.
+* **`git pull`** goes further: it fetches changes **and merges them into your local branch**.
+
+In other words:
+
+```text
+git pull = git fetch + git merge
+```
+
+---
+
+## Step 1: Basic Git Pull
+
+Let’s say you are on `main` and new commits have appeared on the remote repository. Running:
 
 ```bash
-# Psuedocode
-git pull --rebase <remote name> <branch name>
-# An example
-git pull --rebase origin main
-
+git pull origin main
 ```
-Why it is useful?
-Sometimes its easier not to merge in the upstream content and its better just to reapply your work on top of the incoming changes. For long term changes probably merge will be best but for small change sets history will stay cleaner with a rebase.
 
-Now there has been two new commits in the remote repository which are not yet reflected in the local repository.
-Let's assume we have done commits and i am working on certain important changes and i am not yet done with my changes, but i need to pull in the changes from he remote repository and this is important for my work. However by pulling in i want to keep all my commits in my local repository on top of the changes that i am pulling from the remote repository. Only way to do this is with git pull with rebase option.
+* Fetches the new commits from `origin/main`.
+* Merges them into your local `main`.
+* If there are no conflicts, you get a **fast-forward merge**.
+* If there are conflicts, Git will stop and ask you to resolve them.
+
+- **Advantage**: quick and simple, your local branch matches remote.
+- **Disadvantage**: history may become cluttered with merge commits, especially when you pull frequently.
+
+---
+
+## Step 2: Why Pull with Rebase?
+
+Sometimes merging is not the cleanest solution. If you are working on **local changes** but also want to integrate the latest updates from remote:
+
+* A normal merge will produce a merge commit and mix histories.
+* A rebase will **reapply your local commits on top of the remote commits**, producing a cleaner, linear history.
+
+The command:
+
+```bash
+git pull --rebase origin main
+```
+
+works like this:
+
+1. `git fetch` → gets latest changes from `origin/main`.
+2. `git rebase` → temporarily “removes” your local commits, applies the new commits from `origin/main`, then replays your local commits on top.
+
+---
+
+## Step 3: Example Walkthrough
+
+Before pulling, the commit history looks like this:
 
 ```bash
 git log --oneline --decorate --graph --all
@@ -592,17 +628,335 @@ git log --oneline --decorate --graph --all
 * 352a722 feature-branch: Rebasing the feature branch - 404.html
 * 9cbea38 main: modified Error Message again- 404.html
 * 84900fe main: modified title again- 404.html
-* 89293e4 Rebasing
-* 86bcbc6 Updated Readme with future section
-* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
-* 0832375 HTML File
-* f86213d first commit
+...
+```
 
+Two new commits (`Update 2 config.yaml`, `Updated 1 config.yaml`) exist on the remote but are not yet on local.
 
+Now run:
 
+```bash
+git pull --rebase origin main
+```
+
+Output:
+
+```
+From github.com:SurajBhar/advance_git
+ * branch            main       -> FETCH_HEAD
+   e5c4de0..0535e79  main       -> origin/main
+Successfully rebased and updated refs/heads/main.
+```
+
+---
+
+## Step 4: After Rebase
+
+Check the new commit history:
+
+```bash
+git log --oneline --decorate --graph --all
+* ebf7c5c (HEAD -> main) main: modified readme - README.md
+* 0535e79 (origin/main) Update 2 config.yaml
+* d9b0764 Updated 1 config.yaml
+* e5c4de0 Included Hyperparameter tuning
+* 86f6a84 Created svm_classification.py
+* 453b2c9 Rebasing Done with Updated Readme
+...
+```
+
+Notice the difference:
+
+* The remote commits (`d9b0764`, `0535e79`) were applied first.
+* Your local commit (`ebf7c5c main: modified readme`) was **rebased on top**.
+* The history is linear, without extra merge commits.
+
+---
+
+## Advantages of `git pull --rebase`
+
+- Produces a **clean, linear history**.
+- Easier to follow commit logs (`git log` looks tidy).
+- Avoids unnecessary merge commits when working on small feature changes.
+
+---
+
+## Disadvantages / Cautions
+
+- Can be risky on **shared branches** — rebasing rewrites history.
+- Requires more caution when conflicts occur; you must resolve them commit by commit.
+- For long-running feature branches, sometimes merge is the safer and more transparent option.
+
+---
+
+## Tips for Using Pull with Rebase
+
+- Use `git pull --rebase` for personal feature branches or small sets of local commits.
+- Avoid rebasing on shared/team branches unless everyone agrees to it.
+- Set rebase as default for pulls:
+
+```bash
+git config --global pull.rebase true
+```
+
+- If conflicts occur, use:
+
+```bash
+git rebase --continue
+git rebase --abort
+```
+
+---
+
+### Key Takeaway
+
+* **`git pull`** = fetch + merge → quick but may clutter history.
+* **`git pull --rebase`** = fetch + rebase → cleaner history, local commits reapplied on top of remote.
+* Choose **merge** for long-lived, collaborative branches and **rebase** for short-lived, personal branches where you want a tidy history.
+
+---
+
+## 5. Git Reference Logs
+
+Reflog is Git’s **safety net**—it records all branch tip updates, even if commits were reset or “lost.”
+
+* Every checkout, reset, rebase, and commit is tracked locally.
+* You can recover commits that no longer appear in `git log`.
+
+```bash
+git reflog
+```
+
+reflog is an acronym for reference logs. The current head can get updated for multiple events such as: by switching branches, pulling in new changes, rewriting history or simply by adding new commits.
+
+reference is like a chronological history about everything you have done in your local repository.
+
+```bash
+git reflog
+ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
+ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
+0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
+e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
+e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
+453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
+fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
+9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
+fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
+fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
+24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
+352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
+9cbea38 HEAD@{12}: rebase (start): checkout main
+:...skipping...
+ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
+ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
+0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
+e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
+e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
+453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
+fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
+9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
+fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
+fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
+24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
+352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
+9cbea38 HEAD@{12}: rebase (start): checkout main
+7a9f943 HEAD@{13}: checkout: moving from main to feature-branch
+:...skipping...
+ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
+ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
+0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
+e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
+e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
+453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
+fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
+9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
+fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
+fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
+24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
+352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
+9cbea38 HEAD@{12}: rebase (start): checkout main
+7a9f943 HEAD@{13}: checkout: moving from main to feature-branch
+9cbea38 HEAD@{14}: commit: main: modified Error Message again- 404.html
+84900fe HEAD@{15}: commit: main: modified title again- 404.html
+89293e4 HEAD@{16}: checkout: moving from feature-branch to main
+7a9f943 HEAD@{17}: checkout: moving from main to feature-branch
+:...skipping...
+ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
+ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
+0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
+e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
+e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
+453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
+fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
+9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
+fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
+fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
+24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
+352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
+9cbea38 HEAD@{12}: rebase (start): checkout main
+7a9f943 HEAD@{13}: checkout: moving from main to feature-branch
+9cbea38 HEAD@{14}: commit: main: modified Error Message again- 404.html
+84900fe HEAD@{15}: commit: main: modified title again- 404.html
+89293e4 HEAD@{16}: checkout: moving from feature-branch to main
+7a9f943 HEAD@{17}: checkout: moving from main to feature-branch
+89293e4 HEAD@{18}: checkout: moving from feature-branch to main
+7a9f943 HEAD@{19}: commit: feature-branch:modified README.md File - README.md
+e7f8a2e HEAD@{20}: commit: feature-branch: modified Error Message - 404.html
+:...skipping...
+ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
+ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
+0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
+e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
+e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
+453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
+fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
+9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
+fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
+fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
+24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
+352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
+9cbea38 HEAD@{12}: rebase (start): checkout main
+7a9f943 HEAD@{13}: checkout: moving from main to feature-branch
+9cbea38 HEAD@{14}: commit: main: modified Error Message again- 404.html
+84900fe HEAD@{15}: commit: main: modified title again- 404.html
+89293e4 HEAD@{16}: checkout: moving from feature-branch to main
+7a9f943 HEAD@{17}: checkout: moving from main to feature-branch
+89293e4 HEAD@{18}: checkout: moving from feature-branch to main
+7a9f943 HEAD@{19}: commit: feature-branch:modified README.md File - README.md
+e7f8a2e HEAD@{20}: commit: feature-branch: modified Error Message - 404.html
+82ff182 HEAD@{21}: commit: feature-branch: modified title - 404.html
+89293e4 HEAD@{22}: checkout: moving from main to feature-branch
+89293e4 HEAD@{23}: commit: Rebasing
+86bcbc6 HEAD@{24}: commit: Updated Readme with future section
+65cf379 HEAD@{25}: commit (amend): main:modified the title - blog.html and added 404.html; added config.yaml
+4bf9f69 HEAD@{26}: commit (amend): main:modified the title - blog.html
+:...skipping...
+ebf7c5c (HEAD -> main, origin/main) HEAD@{0}: pull --rebase origin main (finish): returning to refs/heads/main
+ebf7c5c (HEAD -> main, origin/main) HEAD@{1}: pull --rebase origin main (pick): main: modified readme - README.md
+0535e79 HEAD@{2}: pull --rebase origin main (start): checkout 0535e7982a202ba7ea84cace42ed777b059eff6c
+e7d0f19 HEAD@{3}: commit: main: modified readme - README.md
+e5c4de0 HEAD@{4}: merge origin/main: Fast-forward
+453b2c9 HEAD@{5}: commit: Rebasing Done with Updated Readme
+fca2f48 HEAD@{6}: merge feature-branch: Fast-forward
+9cbea38 HEAD@{7}: checkout: moving from feature-branch to main
+fca2f48 HEAD@{8}: rebase (finish): returning to refs/heads/feature-branch
+fca2f48 HEAD@{9}: rebase (pick): feature-branch:modified README.md File - README.md
+24d3a81 HEAD@{10}: rebase (continue): feature-branch: rebase in progress - 404.html
+352a722 HEAD@{11}: rebase (continue): feature-branch: Rebasing the feature branch - 404.html
+9cbea38 HEAD@{12}: rebase (start): checkout main
+7a9f943 HEAD@{13}: checkout: moving from main to feature-branch
+9cbea38 HEAD@{14}: commit: main: modified Error Message again- 404.html
+84900fe HEAD@{15}: commit: main: modified title again- 404.html
+89293e4 HEAD@{16}: checkout: moving from feature-branch to main
+7a9f943 HEAD@{17}: checkout: moving from main to feature-branch
+89293e4 HEAD@{18}: checkout: moving from feature-branch to main
+7a9f943 HEAD@{19}: commit: feature-branch:modified README.md File - README.md
+e7f8a2e HEAD@{20}: commit: feature-branch: modified Error Message - 404.html
+82ff182 HEAD@{21}: commit: feature-branch: modified title - 404.html
+89293e4 HEAD@{22}: checkout: moving from main to feature-branch
+89293e4 HEAD@{23}: commit: Rebasing
+86bcbc6 HEAD@{24}: commit: Updated Readme with future section
+65cf379 HEAD@{25}: commit (amend): main:modified the title - blog.html and added 404.html; added config.yaml
+4bf9f69 HEAD@{26}: commit (amend): main:modified the title - blog.html
+ab40261 HEAD@{27}: commit: main:modified the title - blog.html
+0832375 HEAD@{28}: commit: HTML File
+f86213d HEAD@{29}: Branch: renamed refs/heads/main to refs/heads/main
+f86213d HEAD@{31}: commit (initial): first commit
 
 ```
 
+```bash
+git show HEAD@{29}
+commit f86213deab1cb5c6a10fbbd740b849c8ee9b1e40
+Author: Suraj Bhardwaj <suraj.unisiegen@gmail.com>
+Date:   Thu Sep 11 17:45:43 2025 +0200
+
+    first commit
+
+diff --git a/README.md b/README.md
+new file mode 100644
+index 0000000..fb7c9f5
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,2 @@
++# Advance Git Commands and GitHub Features
++
+
+```
+
+---
+The reflog data is kept in the .git/logs/ directory.
+Reflog is purely.
 
 
-## 5. Git Reference Logs
+We can also see the history by specifying the time in various supported formats:
+1.minute.ago
+1.hour.ago
+1.day.ago
+yesterday
+1.week.ago
+1.month.ago
+1.year.ago
+1.day.2.hours.ago
+2025-09-11.21:00:00
+
+```bash
+git log -g main
+```
+
+
+```bash
+git show main@{1.hour.ago}
+commit e5c4de075366c43ec9d5f386f7f47d484121c4c1
+Author: Suraj Bhardwaj <115887529+SurajBhar@users.noreply.github.com>
+Date:   Fri Sep 12 10:29:35 2025 +0200
+
+    Included Hyperparameter tuning
+
+diff --git a/svm_classification.py b/svm_classification.py
+index 917c25a..d2fa925 100644
+--- a/svm_classification.py
++++ b/svm_classification.py
+@@ -2,17 +2,21 @@
+ Support Vector Machine (SVM) Classification Example
+ ---------------------------------------------------
+ This script demonstrates the full Machine Learning lifecycle using
+-an SVM classifier on a sample dataset (Iris dataset).
++an SVM classifier on the Iris dataset, including hyperparameter tuning.
+ """
+ 
+ import joblib
+-import numpy as np
+ import matplotlib.pyplot as plt
+ from sklearn import datasets
+-from sklearn.model_selection import train_test_split
++from sklearn.model_selection import train_test_split, GridSearchCV
+ from sklearn.preprocessing import StandardScaler
+:
+
+```
+
+```bash
+git show main@{5.days.ago}
+warning: log for 'main' only goes back to Thu, 11 Sep 2025 17:45:43 +0200
+commit f86213deab1cb5c6a10fbbd740b849c8ee9b1e40
+Author: Suraj Bhardwaj <suraj.unisiegen@gmail.com>
+Date:   Thu Sep 11 17:45:43 2025 +0200
+
+    first commit
+
+diff --git a/README.md b/README.md
+new file mode 100644
+index 0000000..fb7c9f5
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,2 @@
++# Advance Git Commands and GitHub Features
++
+```
+
+```bash
+git diff @{1.hour.ago}
+```
+
+---
