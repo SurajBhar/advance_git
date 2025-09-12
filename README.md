@@ -117,16 +117,32 @@ git log --oneline --decorate --graph --all
 * 0832375 HTML File
 * f86213d first commit
 
-# Create a new branch named feature-branch
-git checkout -b feature-branch 
+```
 
-git log --oneline --decorate --graph --all
-* 89293e4 (HEAD -> feature-branch, origin/main, main) Rebasing
-* 86bcbc6 Updated Readme with future section
-* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
-* 0832375 HTML File
-* f86213d first commit
+#### Practical Example (with Conflict Simulation)
+In this walkthrough, we will simulate a real scenario: creating a feature branch, making changes, modifying `main`, and then rebasing with conflicts.
 
+---
+
+#### Step 1: Create a New Feature Branch
+
+```bash
+git checkout -b feature-branch
+```
+
+**Output:**
+
+```
+Switched to a new branch 'feature-branch'
+```
+
+At this point, both `main` and `feature-branch` point to the same commit.
+
+---
+
+#### Step 2: Add Commits to Feature Branch
+
+```bash
 git commit -am "feature-branch: modified title - 404.html"
 [feature-branch 82ff182] feature-branch: modified title - 404.html
  2 files changed, 21 insertions(+), 1 deletion(-)
@@ -134,25 +150,211 @@ git commit -am "feature-branch: modified title - 404.html"
 git commit -am "feature-branch: modified Error Message - 404.html"
 [feature-branch e7f8a2e] feature-branch: modified Error Message - 404.html
  2 files changed, 8 insertions(+), 2 deletions(-)
-
-
- git log --oneline --decorate --graph --all
-* e7f8a2e (HEAD -> feature-branch) feature-branch: modified Error Message - 404.html
-* 82ff182 feature-branch: modified title - 404.html
-* 89293e4 (origin/main, main) Rebasing
-* 86bcbc6 Updated Readme with future section
-* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
-* 0832375 HTML File
-* f86213d first commit
-
 ```
 
-### 2.1 Rebase implementation
+Now, `feature-branch` has two commits that are not present in `main`.
 
-### 2.2 Resolving Git Rebase Conflict
+---
 
-### 2.3 Git Fetch
+#### Step 3: Add Commits to Main
 
-### 2.4 Git Pull with Rebase
+Switch back to `main` and simulate independent changes:
 
-### 2.5 Git Reference Logs
+```bash
+git checkout main
+git commit -am "main: modified title again- 404.html"
+[main 84900fe] main: modified title again- 404.html
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+git commit -am "main: modified Error Message again- 404.html"
+[main 9cbea38] main: modified Error Message again- 404.html
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+```
+
+**Visual Log (`git log --oneline --decorate --graph --all`):**
+
+```
+* 9cbea38 (HEAD -> main) main: modified Error Message again- 404.html
+* 84900fe main: modified title again- 404.html
+| * e7f8a2e (feature-branch) feature-branch: modified Error Message - 404.html
+| * 82ff182 feature-branch: modified title - 404.html
+|/  
+* 89293e4 (origin/main) Rebasing
+* 86bcbc6 Updated Readme with future section
+```
+
+Now both branches have diverged.
+
+---
+
+#### Step 4: Start Rebasing
+
+```bash
+git checkout feature-branch
+Switched to branch 'feature-branch'
+
+git rebase main
+```
+
+**Output:**
+
+```
+Auto-merging 404.html
+CONFLICT (content): Merge conflict in 404.html
+error: could not apply 82ff182... feature-branch: modified title - 404.html
+hint: Resolve all conflicts manually, mark them as resolved with
+hint: "git add/rm <conflicted_files>", then run "git rebase --continue".
+```
+
+Git stopped because of a conflict in `404.html`.
+
+---
+
+#### Step 5: Resolve the First Conflict
+
+```bash
+git mergetool
+```
+
+**Output:**
+
+```
+Merging:
+404.html
+
+Normal merge conflict for '404.html':
+  {local}: modified file
+  {remote}: modified file
+```
+
+Open the file, resolve the conflict, then stage the changes:
+
+```bash
+git add 404.html
+git rebase --continue
+```
+
+**Output:**
+
+```
+[detached HEAD 352a722] feature-branch: Rebasing the feature branch - 404.html
+ 2 files changed, 21 insertions(+), 1 deletion(-)
+Auto-merging 404.html
+CONFLICT (content): Merge conflict in 404.html
+error: could not apply e7f8a2e... feature-branch: modified Error Message - 404.html
+```
+
+Another conflict occurred in the next commit.
+
+---
+
+#### Step 6: Resolve the Second Conflict
+
+Fix the file again, then run:
+
+```bash
+git add 404.html
+git rebase --continue
+```
+
+**Output:**
+
+```
+[detached HEAD 24d3a81] feature-branch: rebase in progress - 404.html
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+Successfully rebased and updated refs/heads/feature-branch.
+```
+
+All conflicts are resolved, and rebasing is complete.
+
+---
+
+#### Step 7: Verify Commit History
+
+```bash
+git log --oneline --decorate --graph --all
+```
+
+**Output:**
+
+```
+* fca2f48 (HEAD -> feature-branch) feature-branch: modified README.md File - README.md
+* 24d3a81 feature-branch: rebase in progress - 404.html
+* 352a722 feature-branch: Rebasing the feature branch - 404.html
+* 9cbea38 (main) main: modified Error Message again- 404.html
+* 84900fe main: modified title again- 404.html
+* 89293e4 (origin/main) Rebasing
+```
+
+Notice how `feature-branch` commits are now **on top of `main`**, forming a linear history.
+
+---
+
+#### Step 8: Merge Feature Branch into Main
+
+Since `feature-branch` is rebased, merging results in a **fast-forward**:
+
+```bash
+git checkout main
+git merge feature-branch
+```
+
+**Output:**
+
+```
+Updating 9cbea38..fca2f48
+Fast-forward
+ 404.html  |  4 ++--
+ README.md | 38 ++++++++++++++++++++++++++++++++++++++
+```
+
+`main` now contains all rebased commits.
+
+---
+
+#### Step 9: Cleanup
+
+```bash
+git branch -d feature-branch
+Deleted branch feature-branch (was fca2f48).
+```
+
+---
+
+#### Handy Rebase Commands
+
+* **Abort rebase and go back**:
+
+  ```bash
+  git rebase --abort
+  ```
+* **Skip a conflicting commit**:
+
+  ```bash
+  git rebase --skip
+  ```
+* **Continue after fixing conflicts**:
+
+  ```bash
+  git rebase --continue
+  ```
+
+---
+
+#### Key Takeaways
+
+* Rebasing helps maintain a **clean, linear history**.
+* Conflicts must be **resolved commit by commit** during rebase.
+* Rebasing is typically done on **feature branches** before merging into `main` to ensure history clarity.
+
+---
+
+This simulation demonstrated a real-world rebasing scenario with conflicts, including how to resolve them and preserve a clean history.
+
+---
+
+## 3. Git Fetch
+
+## 4. Git Pull with Rebase
+
+## 5. Git Reference Logs
