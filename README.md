@@ -1,5 +1,7 @@
 # Advance Git Commands and GitHub Features
 
+Git is more than `add`, `commit`, and `push`. Once you start collaborating on real projects, you’ll often need to rewrite history, clean up commits, rebase branches, or even recover “lost” work. This guide explores advanced Git features with explanations and space for practical demonstrations.
+
 ## 1. Commit History Rewriting in Git
 
 ### 1.1 Amending Git Commits
@@ -355,6 +357,252 @@ This simulation demonstrated a real-world rebasing scenario with conflicts, incl
 
 ## 3. Git Fetch
 
-## 4. Git Pull with Rebase
+When working with Git in collaborative projects, it’s important to keep your local repository **aware of changes** that have happened on the remote without immediately applying them. That’s where **`git fetch`** comes in.
+
+The command:
+
+```bash
+git fetch origin
+```
+
+* **Downloads** objects and refs from the remote repository (`origin`).
+* **Updates your remote-tracking branches** (e.g., `origin/main`) to match the remote.
+* **Does not modify your local branches** (e.g., `main`).
+
+This makes `git fetch` a safe operation—you can inspect remote changes before deciding whether to merge or rebase them into your local branch.
+
+---
+
+## Step 1: Checking Branches
+
+List all local and remote branches:
+
+```bash
+git branch -a
+```
+
+Output:
+
+```
+* main
+  remotes/origin/main
+```
+
+* `main` → local branch
+* `remotes/origin/main` → remote-tracking branch (your local copy of the remote branch)
+
+Check only local branches:
+
+```bash
+git branch -v
+* main 453b2c9 Rebasing Done with Updated Readme
+```
+
+Check only remote branches:
+
+```bash
+git branch -r
+  origin/main
+```
+
+Check remote-tracking with last commit:
+
+```bash
+git branch -rv
+  origin/main 453b2c9 Rebasing Done with Updated Readme
+```
+
+See everything:
+
+```bash
+git branch -av
+* main                453b2c9 Rebasing Done with Updated Readme
+  remotes/origin/main 453b2c9 Rebasing Done with Updated Readme
+```
+
+---
+
+### Explanation
+
+* **`main`**: local branch, currently checked out (`*`).
+* **`remotes/origin/main`**: remote-tracking branch, representing the `main` branch on `origin`.
+
+Both point to the same commit `453b2c9`, meaning your local branch is **in sync** with remote.
+
+---
+
+## Step 2: Detecting Divergence
+
+Suppose new commits were added on the remote repository. Before fetching:
+
+```bash
+git log --oneline main
+453b2c9 Rebasing Done with Updated Readme
+... (older commits)
+```
+
+```bash
+git log --oneline origin/main
+453b2c9 Rebasing Done with Updated Readme
+... (older commits)
+```
+
+Both look the same.
+
+Now, after someone pushes **two new commits** (`Included Hyperparameter tuning`, `Created svm_classification.py`) to remote, your local copy is outdated.
+
+Run:
+
+```bash
+git fetch origin main
+```
+
+Output:
+
+```
+From github.com:SurajBhar/advance_git
+ * branch            main       -> FETCH_HEAD
+   453b2c9..e5c4de0  main       -> origin/main
+```
+
+Remote-tracking branch `origin/main` is now updated, but **local `main` is untouched**.
+
+---
+
+## Step 3: Inspect Remote Changes
+
+Check remote branch logs:
+
+```bash
+git log --oneline origin/main
+e5c4de0 (origin/main) Included Hyperparameter tuning
+86f6a84 Created svm_classification.py
+453b2c9 Rebasing Done with Updated Readme
+... (older commits)
+```
+
+Compare with local:
+
+```bash
+git status
+On branch main
+Your branch is behind 'origin/main' by 2 commits, and can be fast-forwarded.
+```
+
+At this point:
+
+* `origin/main` knows about the **2 new commits**.
+* `main` is **2 commits behind**.
+
+---
+
+## Step 4: Merging Remote Changes
+
+To bring your local branch up to date:
+
+```bash
+git merge origin/main
+```
+
+Output:
+
+```
+Updating 453b2c9..e5c4de0
+Fast-forward
+ svm_classification.py | 125 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 125 insertions(+)
+ create mode 100644 svm_classification.py
+```
+
+Now:
+
+```bash
+git log --oneline --decorate --graph --all
+* e5c4de0 (HEAD -> main, origin/main) Included Hyperparameter tuning
+* 86f6a84 Created svm_classification.py
+* 453b2c9 Rebasing Done with Updated Readme
+...
+```
+
+Your local `main` is synced with `origin/main`.
+
+---
+
+## Advantages of `git fetch`
+
+- **Safe** – does not change your working branch.
+- **Informative** – lets you see remote changes before merging.
+- **Collaboration-friendly** – helps you stay aware of your teammates’ work.
+- **Keeps remote-tracking branches up-to-date**.
+
+---
+
+## Disadvantages / Gotchas
+
+- `git fetch` alone does not update your local branch—you still need `merge` or `rebase`.
+- Can cause confusion for beginners because `origin/main` is updated but `main` is not.
+- Requires extra step compared to `git pull` (which does fetch + merge).
+
+---
+
+## Tips for Users
+
+- **Fetch daily**: Run `git fetch` before starting your workday.
+- **Fetch before pushing**: Ensures you don’t accidentally push outdated work.
+- **Inspect before merging**: Use `git log origin/main` to review remote commits.
+- **Combine with prune**: `git fetch --prune` cleans up deleted remote branches.
+
+---
+
+### Key Takeaway
+
+* `git fetch` updates your **view of the remote repository**.
+* Your local branch remains unchanged until you explicitly merge/rebase.
+* Think of it as “checking for mail” without opening the letters.
+
+---
+
+## 4. Git Pull and Pull with Rebase
+git fetch is the command that says "bring my local copy of the remote repository up to date".
+On the contrary, git pull will bring the local copy of the remote repository up to date and merge it to reflect changes in your local repository or workspace. So, git pull is a combination of git fetch and git merge performed together.
+
+so git pull does a git fetch to pull down data from the specified remote and then calls git merge to join the changes received with your current branches work.
+However, that may not be the best case. You may also rebase the changes and that will result in a lot cleaner. This can be done by adding the --rebase flag with the git pull command as  follows:
+
+```bash
+# Psuedocode
+git pull --rebase <remote name> <branch name>
+# An example
+git pull --rebase origin main
+
+```
+Why it is useful?
+Sometimes its easier not to merge in the upstream content and its better just to reapply your work on top of the incoming changes. For long term changes probably merge will be best but for small change sets history will stay cleaner with a rebase.
+
+Now there has been two new commits in the remote repository which are not yet reflected in the local repository.
+Let's assume we have done commits and i am working on certain important changes and i am not yet done with my changes, but i need to pull in the changes from he remote repository and this is important for my work. However by pulling in i want to keep all my commits in my local repository on top of the changes that i am pulling from the remote repository. Only way to do this is with git pull with rebase option.
+
+```bash
+git log --oneline --decorate --graph --all
+* e5c4de0 (HEAD -> main, origin/main) Included Hyperparameter tuning
+* 86f6a84 Created svm_classification.py
+* 453b2c9 Rebasing Done with Updated Readme
+* fca2f48 feature-branch:modified README.md File - README.md
+* 24d3a81 feature-branch: rebase in progress - 404.html
+* 352a722 feature-branch: Rebasing the feature branch - 404.html
+* 9cbea38 main: modified Error Message again- 404.html
+* 84900fe main: modified title again- 404.html
+* 89293e4 Rebasing
+* 86bcbc6 Updated Readme with future section
+* 65cf379 main:modified the title - blog.html and added 404.html; added config.yaml
+* 0832375 HTML File
+* f86213d first commit
+
+
+
+
+```
+
+
 
 ## 5. Git Reference Logs
