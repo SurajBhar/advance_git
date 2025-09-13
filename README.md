@@ -2,6 +2,43 @@
 
 Git is more than `add`, `commit`, and `push`. Once you start collaborating on real projects, you’ll often need to rewrite history, clean up commits, rebase branches, or even recover “lost” work. This guide explores advanced Git features with explanations and space for practical demonstrations.
 
+# Table of Contents
+
+- [Advance Git Commands and GitHub Features](#advance-git-commands-and-github-features)
+  - [1. Commit History Rewriting in Git](#1-commit-history-rewriting-in-git)
+    - [1.1 Amending Git Commits](#11-amending-git-commits)
+  - [2. Git Rebase](#2-git-rebase)
+    - [Practical Example (with Conflict Simulation)](#practical-example-with-conflict-simulation)
+    - [Handy Rebase Commands](#handy-rebase-commands)
+    - [Key Takeaways](#key-takeaways)
+  - [3. Git Fetch](#3-git-fetch)
+    - [Step 1: Checking Branches](#step-1-checking-branches)
+    - [Step 2: Detecting Divergence](#step-2-detecting-divergence)
+    - [Step 3: Inspecting Remote Changes](#step-3-inspecting-remote-changes)
+    - [Step 4: Merging Remote Changes](#step-4-merging-remote-changes)
+    - [Advantages of git fetch](#advantages-of-git-fetch)
+    - [Disadvantages / Gotchas](#disadvantages--gotchas)
+    - [Tips for Users](#tips-for-users)
+    - [Key Takeaway](#key-takeaway)
+  - [4. Git Pull and Pull with Rebase](#4-git-pull-and-pull-with-rebase)
+    - [Step 1: Basic Git Pull](#step-1-basic-git-pull)
+    - [Step 2: Why Pull with Rebase?](#step-2-why-pull-with-rebase)
+    - [Step 3: Example Walkthrough](#step-3-example-walkthrough)
+    - [Step 4: After Rebase](#step-4-after-rebase)
+    - [Advantages of git pull --rebase](#advantages-of-git-pull---rebase)
+    - [Disadvantages / Cautions](#disadvantages--cautions)
+    - [Tips for Using Pull with Rebase](#tips-for-using-pull-with-rebase)
+    - [Key Takeaway](#key-takeaway-1)
+  - [5. Git Reference Logs (Reflog)](#5-git-reference-logs-reflog)
+    - [Step 1: Viewing the Reflog](#step-1-viewing-the-reflog)
+    - [Step 2: Why Reflog Matters](#step-2-why-reflog-matters)
+    - [Step 3: Inspecting Historical States](#step-3-inspecting-historical-states)
+    - [Step 4: Using Reflog to Recover from Mistakes](#step-4-using-reflog-to-recover-from-mistakes)
+    - [Step 5: Where Reflog Data Lives](#step-5-where-reflog-data-lives)
+    - [Step 6: Cheat Sheet](#step-6-cheat-sheet)
+    - [Key Takeaways](#key-takeaways-1)
+
+
 ## 1. Commit History Rewriting in Git
 
 ### 1.1 Amending Git Commits
