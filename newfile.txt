@@ -1,3 +1,6 @@
 This is a new file.
 This is the stash example with stash branch.
 This file is a tracked file.
+
+
+Modification 3.
